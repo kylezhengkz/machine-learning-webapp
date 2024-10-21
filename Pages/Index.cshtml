@@ -1,10 +1,29 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Get Prediction</h1>
+
+    <!-- Form that will send the data to the server -->
+    <form method="post">
+        <div>
+            <label for="description">Description (type 'none' if not available):</label>
+            <input type="text" id="description" name="description" required />
+        </div>
+        <div>
+            <label for="supplier">Supplier (type 'none' if not available):</label>
+            <input type="text" id="supplier" name="supplier" required />
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+
+    <!-- This will display the prediction result -->
+    @if (Model.PredictionResult != null)
+    {
+        <h2>Prediction Result:</h2>
+        <p>@Model.PredictionResult</p>
+    }
 </div>

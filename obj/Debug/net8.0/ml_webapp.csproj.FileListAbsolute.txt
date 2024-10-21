@@ -1,0 +1,8 @@
+/Users/kylezheng/ml_webapp/obj/Debug/net8.0/ml_webapp.GeneratedMSBuildEditorConfig.editorconfig
+/Users/kylezheng/ml_webapp/obj/Debug/net8.0/ml_webapp.AssemblyInfoInputs.cache
+/Users/kylezheng/ml_webapp/obj/Debug/net8.0/ml_webapp.AssemblyInfo.cs
+/Users/kylezheng/ml_webapp/obj/Debug/net8.0/ml_webapp.csproj.CoreCompileInputs.cache
+/Users/kylezheng/ml_webapp/obj/Debug/net8.0/ml_webapp.MvcApplicationPartsAssemblyInfo.cache
+/Users/kylezheng/ml_webapp/obj/Debug/net8.0/ml_webapp.RazorAssemblyInfo.cache
+/Users/kylezheng/ml_webapp/obj/Debug/net8.0/ml_webapp.RazorAssemblyInfo.cs
+/Users/kylezheng/ml_webapp/obj/Debug/net8.0/ml_webapp.sourcelink.json
