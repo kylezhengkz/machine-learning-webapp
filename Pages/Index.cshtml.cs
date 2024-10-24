@@ -30,10 +30,10 @@ public class IndexModel : PageModel
         if (String.IsNullOrWhiteSpace(supplier)) {
             supplier = "";
         }
-        Console.WriteLine("Reached method");
         using (Py.GIL()) {
-            Console.WriteLine("Reached this line");
+            Console.WriteLine("Py.GIL() thread begins");
         }
+        Console.WriteLine("Py.GIL() thread end");
         Console.WriteLine(description);
         Console.WriteLine(supplier);
         return (description.Length + supplier.Length).ToString();

@@ -12,28 +12,25 @@ class Resources : IHostedService {
     public static dynamic? model;
 
     private static void initResources() {
-        Console.WriteLine("Reached line 2");
         using (Py.GIL()) {
+            Console.WriteLine("Py.GIL() thread begins");
             builtins = Py.Import("builtins");
             pk = Py.Import("pickle");
             np = Py.Import("numpy");
             joblib = Py.Import("joblib");
             dynamic kerasModels = Py.Import("tensorflow.keras.models");
-            model = kerasModels.load_model("model.h5");
-            PyObject pyFile = builtins.open("test.pkl", "rb");
+            model = kerasModels.load_model("machine_learning/model.h5");
+            PyObject pyFile = builtins.open("machine_learning/test.pkl", "rb");
             glove = pk.load(pyFile);
         }
         Console.WriteLine("Py.GIL() thread end");
-        Console.WriteLine("Reached line 3");
     }
 
     public Task StartAsync(CancellationToken cancellationToken) {
-        Console.WriteLine("Reached line 1");
         Runtime.PythonDLL = "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3";
         PythonEngine.Initialize();
         var m_threadState = PythonEngine.BeginAllowThreads();
         initResources();
-        Console.WriteLine("Reached line 4");
         return Task.CompletedTask;
     }
 
