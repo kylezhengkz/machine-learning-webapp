@@ -1,0 +1,1 @@
+I did not include glove.840B.300d.txt or embedding_dictionary.pkl in this remote repository
