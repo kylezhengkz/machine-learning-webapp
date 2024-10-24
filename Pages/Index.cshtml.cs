@@ -24,8 +24,15 @@ public class IndexModel : PageModel
 
     private async Task<string> Predict(string description, string supplier)
     {
+        if (String.IsNullOrWhiteSpace(description)) {
+            description = "";
+        }
+        if (String.IsNullOrWhiteSpace(supplier)) {
+            supplier = "";
+        }
         Console.WriteLine("Reached method");
         using (Py.GIL()) {
+            
             Console.WriteLine("Reached this line");
         }
         Console.WriteLine(description);
