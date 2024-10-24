@@ -32,7 +32,6 @@ public class IndexModel : PageModel
         }
         Console.WriteLine("Reached method");
         using (Py.GIL()) {
-            
             Console.WriteLine("Reached this line");
         }
         Console.WriteLine(description);
