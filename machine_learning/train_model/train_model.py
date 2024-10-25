@@ -2,6 +2,7 @@ import pickle
 import time
 import re
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 t0 = time.time()
 with open("../dataset/dataset.pkl", "rb") as f:
@@ -55,6 +56,7 @@ for i, row in df.iterrows():
         assert embeddings.dtype == np.float32
         assert len(embeddings) == max_embedding_length
         accumulator.append(embeddings)
+        y.append(j)
         
     if (len(accumulator) % 10000 == 0):
         offset_i = (i + 1) * 5
@@ -73,3 +75,10 @@ if (len(accumulator) > 0):
     print(f"Populating X from index {start_index} to {end_index - 1}")
     X[start_index:end_index] = accumulator
     accumulator.clear()
+
+assert (len(X) == len(y))
+X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+assert len(X_train) == len(y_train)
+assert len(X_val) == len(y_val)
+print(f"Total training data {len(X_train)}")
+print(f"Total validation data {len(X_val)}")
