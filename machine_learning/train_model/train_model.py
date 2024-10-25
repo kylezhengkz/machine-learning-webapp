@@ -22,3 +22,10 @@ with open("../glove/embedding_dictionary.pkl", "rb") as f:
 t1 = time.time()
 print(f"{round(t1 - t0, 3)} seconds to load embedding dictionary")
 
+max_token_length = 100
+
+X = []
+y = []
+
+for _, row in df.iterrows():
+    print(tokenize(row["1-Star Reviews"]))

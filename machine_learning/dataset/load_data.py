@@ -3,7 +3,7 @@ import pandas as pd
 import pickle
 
 start_index = 5000000 # data points seem to be partially sorted by date, and I prefer data that is more recent
-category_max = 100
+category_max = 100000
 
 reviews = {
     "1-Star Reviews": [],
