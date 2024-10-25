@@ -1,8 +1,9 @@
 import json
 import pandas as pd
+import pickle
 
 start_index = 5000000 # data points seem to be partially sorted by date, and I prefer data that is more recent
-category_max = 10
+category_max = 100
 
 reviews = {
     "1-Star Reviews": [],
@@ -44,3 +45,6 @@ print(len(reviews["5-Star Reviews"]))
 df = pd.DataFrame(reviews)
 
 print(df)
+
+with open("dataset.pkl", "wb") as file:
+    pickle.dump(df, file)
