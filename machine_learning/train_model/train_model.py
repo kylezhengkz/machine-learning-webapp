@@ -3,6 +3,9 @@ import time
 import re
 import numpy as np
 from sklearn.model_selection import train_test_split
+import sys
+import tracemalloc
+tracemalloc.start()
 
 t0 = time.time()
 with open("../dataset/dataset.pkl", "rb") as f:
@@ -44,10 +47,13 @@ def load_embeddings(text):
         embeddings[((i+1)*300):] = np.zeros((room_left,), dtype=np.float32)
     
     return embeddings
+
+print(f"Bytes of memory used: {tracemalloc.get_traced_memory()[0]}")
     
-X = np.empty((len(df) * 5, max_embedding_length))
+X = np.empty((len(df) * 5, max_embedding_length), np.float32)
 y = []
 accumulator = []
+chunk_size = 5
 print(f"Rows of data {len(df)}")
 print(f"Total data to process {len(df) * 5}")
 for i, row in df.iterrows():
@@ -58,10 +64,10 @@ for i, row in df.iterrows():
         accumulator.append(embeddings)
         y.append(j)
         
-    if (len(accumulator) % 10000 == 0):
+    if (len(accumulator) % chunk_size == 0):
         offset_i = (i + 1) * 5
-        assert offset_i % 10000 == 0, offset_i
-        start_index = offset_i - 10000
+        assert offset_i % chunk_size == 0, offset_i
+        start_index = offset_i - chunk_size
         end_index = offset_i
         print(f"Populating X from index {start_index} to {end_index - 1}")
         X[start_index:end_index] = accumulator
@@ -75,10 +81,51 @@ if (len(accumulator) > 0):
     print(f"Populating X from index {start_index} to {end_index - 1}")
     X[start_index:end_index] = accumulator
     accumulator.clear()
-
+        
+assert X.dtype == np.float32
+    
+print(f"Bytes of memory used: {tracemalloc.get_traced_memory()[0]}")
+    
 assert (len(X) == len(y))
-X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+print(f"Bytes of memory used by df: {sys.getsizeof(df)}")
+print(f"Bytes of memory used by embedding_dictionary: {sys.getsizeof(embedding_dictionary)}")
+
+del df
+del embedding_dictionary
+
+import gc
+gc.collect()
+
+print(f"Bytes of memory used after deleting df and embedding_dictionary: {tracemalloc.get_traced_memory()[0]}")
+
+print("Processing complete")
+print(f"Bytes of memory used by X: {sys.getsizeof(X)}")
+print(f"Bytes of memory used by y: {sys.getsizeof(y)}")
+
+validation_split_index = int(0.9*len(X))
+print(f"Validation split index: {validation_split_index}")
+
+X_train = X[:validation_split_index]
+X_val = X[validation_split_index:]
+print(X_train)
+
+y_train = y[:validation_split_index]
+y_val = y[validation_split_index:]
+
 assert len(X_train) == len(y_train)
 assert len(X_val) == len(y_val)
-print(f"Total training data {len(X_train)}")
-print(f"Total validation data {len(X_val)}")
+assert len(X_train) + len(X_val) == len(X)
+
+print(f"Bytes of memory used before deleting X and y: {tracemalloc.get_traced_memory()[0]}")
+
+del X
+del y
+gc.collect()
+
+print(f"Bytes of memory used after deleting X and y: {tracemalloc.get_traced_memory()[0]}")
+print(f"Bytes of memory used by X_train: {sys.getsizeof(X_train)}")
+print(f"Bytes of memory used by y_train: {sys.getsizeof(y_train)}")
+print(f"Bytes of memory used by X_val: {sys.getsizeof(X_val)}")
+print(f"Bytes of memory used by y_val: {sys.getsizeof(y_val)}")
+
+
