@@ -15,8 +15,8 @@ class Resources : IHostedService {
             builtins = Py.Import("builtins");
             np = Py.Import("numpy");
             dynamic kerasModels = Py.Import("tensorflow.keras.models");
-            model = kerasModels.load_model("ml/models/test_model.h5");
-            PyObject pyFile = builtins.open("ml/glove/embedding_dictionary.pkl", "rb");
+            model = kerasModels.load_model("Resources/test_model.h5");
+            PyObject pyFile = builtins.open("Resources/embedding_dictionary.pkl", "rb");
             dynamic pk = Py.Import("pickle");
             embedding_dictionary = pk.load(pyFile);
         }

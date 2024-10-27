@@ -29,7 +29,7 @@ def tokenize(text):
     return text
 
 t0 = time.time()
-with open("../glove/embedding_dictionary.pkl", "rb") as f:
+with open("../dictionary/embedding_dictionary.pkl", "rb") as f:
     embedding_dictionary = pickle.load(f)
 t1 = time.time()
 print(f"{round(t1 - t0, 3)} seconds to load embedding dictionary")
