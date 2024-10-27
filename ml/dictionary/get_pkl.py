@@ -68,4 +68,3 @@ print(f"{len(embedding_dictionary)} tokens processed")
         
 with open("embedding_dictionary.pkl", "wb") as file:
     pickle.dump(embedding_dictionary, file)
-    
