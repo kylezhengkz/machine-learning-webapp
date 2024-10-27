@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ml_webapp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+27eabc8c17334719162989e2d35e1613bb348f15")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c1942a6d195375b39c356166e056c108c4919c4d")]
 [assembly: System.Reflection.AssemblyProductAttribute("ml_webapp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ml_webapp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

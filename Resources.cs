@@ -5,23 +5,20 @@ using System.Threading.Tasks;
 
 class Resources : IHostedService {
     public static dynamic? builtins;
-    public static dynamic? pk;
     public static dynamic? np;
-    public static dynamic? joblib;
-    public static dynamic? glove;
+    public static dynamic? embedding_dictionary;
     public static dynamic? model;
 
     private static void initResources() {
         using (Py.GIL()) {
             Console.WriteLine("Py.GIL() thread begins");
             builtins = Py.Import("builtins");
-            pk = Py.Import("pickle");
             np = Py.Import("numpy");
-            joblib = Py.Import("joblib");
             dynamic kerasModels = Py.Import("tensorflow.keras.models");
-            model = kerasModels.load_model("machine_learning/model.h5");
-            PyObject pyFile = builtins.open("machine_learning/test.pkl", "rb");
-            glove = pk.load(pyFile);
+            model = kerasModels.load_model("ml/models/test_model.h5");
+            PyObject pyFile = builtins.open("ml/glove/embedding_dictionary.pkl", "rb");
+            dynamic pk = Py.Import("pickle");
+            embedding_dictionary = pk.load(pyFile);
         }
         Console.WriteLine("Py.GIL() thread end");
     }

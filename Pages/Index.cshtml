@@ -7,23 +7,24 @@
 <div class="text-center">
     <h1 class="display-4">Get Prediction</h1>
 
-    <!-- Form that will send the data to the server -->
     <form method="post">
         <div>
-            <label for="description">Description (type 'none' if not available):</label>
-            <input type="text" id="description" name="description" required />
-        </div>
-        <div>
-            <label for="supplier">Supplier (type 'none' if not available):</label>
-            <input type="text" id="supplier" name="supplier" required />
+            <label for="review">Review:</label>
+            <input type="text" id="review" name="review" required />
         </div>
         <button type="submit">Submit</button>
     </form>
 
-    <!-- This will display the prediction result -->
-    @if (Model.PredictionResult != null)
+    @if (Model.predictionDisplay != null)
     {
         <h2>Prediction Result:</h2>
-        <p>@Model.PredictionResult</p>
+        <p>@Model.predictionDisplay</p>
+    }
+
+    @if (Model.unrecognizedTokens != null) {
+        <h2>Unrecognized Tokens:</h2>
+        @for(int i = 0; i < Model.unrecognizedTokens.Count(); i++) {
+            <p>@($"{i + 1}. {Model.unrecognizedTokens[i]}")</p>
+        }
     }
 </div>
