@@ -2,9 +2,16 @@ import pickle
 import time
 import re
 import numpy as np
-from sklearn.model_selection import train_test_split
 import sys
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization, Activation
+from tensorflow.keras.optimizers import Adam
+from sklearn.preprocessing import LabelEncoder
+from tensorflow.keras.utils import to_categorical
+from sklearn.metrics import f1_score
 import tracemalloc
+import tensorflow as tf
+
 tracemalloc.start()
 
 t0 = time.time()
@@ -82,50 +89,110 @@ if (len(accumulator) > 0):
     X[start_index:end_index] = accumulator
     accumulator.clear()
         
-assert X.dtype == np.float32
-    
-print(f"Bytes of memory used: {tracemalloc.get_traced_memory()[0]}")
-    
+assert X.dtype == np.float32    
 assert (len(X) == len(y))
-print(f"Bytes of memory used by df: {sys.getsizeof(df)}")
-print(f"Bytes of memory used by embedding_dictionary: {sys.getsizeof(embedding_dictionary)}")
 
 del df
 del embedding_dictionary
-
 import gc
 gc.collect()
-
-print(f"Bytes of memory used after deleting df and embedding_dictionary: {tracemalloc.get_traced_memory()[0]}")
 
 print("Processing complete")
 print(f"Bytes of memory used by X: {sys.getsizeof(X)}")
 print(f"Bytes of memory used by y: {sys.getsizeof(y)}")
 
-validation_split_index = int(0.9*len(X))
+validation_split_index = int(0.8*len(X))
 print(f"Validation split index: {validation_split_index}")
 
 X_train = X[:validation_split_index]
 X_val = X[validation_split_index:]
-print(X_train)
 
 y_train = y[:validation_split_index]
 y_val = y[validation_split_index:]
+
+y_train = np.array(y_train, dtype=np.float32)
+y_val = np.array(y_val, dtype=np.float32)
 
 assert len(X_train) == len(y_train)
 assert len(X_val) == len(y_val)
 assert len(X_train) + len(X_val) == len(X)
 
-print(f"Bytes of memory used before deleting X and y: {tracemalloc.get_traced_memory()[0]}")
+dense_layers = [256, 128]
+dropouts = [0.5]
+dropout_decrements = [0.25]
+batch_sizes = [16, 32]
+learning_rates = [0.0003, 0.0001]
+beta_1s = [0.9]
+beta_2s = [0.99]
+batch_normalizors = [True]
+activations = ["relu"]
 
-del X
-del y
-gc.collect()
+hyperparameter_combinations = []
 
-print(f"Bytes of memory used after deleting X and y: {tracemalloc.get_traced_memory()[0]}")
-print(f"Bytes of memory used by X_train: {sys.getsizeof(X_train)}")
-print(f"Bytes of memory used by y_train: {sys.getsizeof(y_train)}")
-print(f"Bytes of memory used by X_val: {sys.getsizeof(X_val)}")
-print(f"Bytes of memory used by y_val: {sys.getsizeof(y_val)}")
+import itertools
+iterables = [ dense_layers, dropouts, dropout_decrements, batch_sizes, learning_rates, beta_1s, beta_2s, batch_normalizors, activations ]
+for dense_unit, dropout, dropout_decrement, batch_size, learning_rate, beta_1, beta_2, batch_normalizor, activation in itertools.product(*iterables):
+    print(f"{dense_unit} {dropout} {dropout_decrement} {batch_size} {learning_rate} {beta_1} {beta_2} {batch_normalizor} {activation}")
+    hyperparameter_set = {}
+    hyperparameter_set["dense_unit"] = dense_unit
+    hyperparameter_set["dropout"] = dropout
+    hyperparameter_set["dropout_decrement"] = dropout_decrement
+    hyperparameter_set["batch_size"] = batch_size
+    hyperparameter_set["learning_rate"] = learning_rate
+    hyperparameter_set["beta_1"] = beta_1
+    hyperparameter_set["beta_2"] = beta_2
+    hyperparameter_set["batch_normalizor"] = batch_normalizor
+    hyperparameter_set["activation"] = activation
+    hyperparameter_combinations.append(hyperparameter_set)
+print(f"Total hyperparameter combinations: {len(hyperparameter_combinations)}")
 
+def build_model(hyperparams):
+    first_layer = True
+    model = Sequential()
+    model.add(Input(shape=(X.shape[1],)))
+    dense_unit = hyperparams["dense_unit"]
+    dropout = hyperparams["dropout"]
+    dropout_decrement = hyperparams["dropout_decrement"]
+    while (dense_unit >= 16):
+        model.add(Dense(units=dense_unit))
+        dense_unit = dense_unit // 2
+        if (first_layer and hyperparams["batch_normalizor"]):
+            model.add(BatchNormalization())
+            first_layer = False
+        
+        if (activation == "relu"):
+            model.add(Activation("relu"))
+        
+        if (dropout > 0):
+            model.add(Dropout(rate=dropout))
+            dropout -= dropout_decrement
+    
+    model.add(Dense(1, activation="linear"))
+    model.summary()
+    model.compile(optimizer=Adam(learning_rate=hyperparams["learning_rate"], beta_1=hyperparams["beta_1"], beta_2=hyperparams["beta_2"]), loss='mse', metrics=['mae'])
+    return model
 
+best_model = None
+best_hyperparameters = None
+best_val_loss = 1024 # random high value
+best_combination_index = 0
+
+for i, hyperparams in enumerate(hyperparameter_combinations):
+    tf.keras.backend.clear_session()
+    model = build_model(hyperparams)
+    early_stopping = tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=4, restore_best_weights=True)
+    history = model.fit(X_train, y_train, epochs=300, batch_size=hyperparams["batch_size"], validation_data=(X_val, y_val), callbacks=[early_stopping])
+    
+    best_epoch = np.argmin(history.history['val_loss']) + 1
+    val_loss = history.history['val_loss'][best_epoch - 1]
+    print(f"Combination {i + 1}/{len(hyperparameter_combinations)} - val loss {val_loss} - epoch {best_epoch}")
+    
+    if (val_loss < best_val_loss):
+        best_model = model
+        best_hyperparameters = hyperparams
+        best_val_loss = val_loss
+        best_combination_index = i + 1
+        
+print(f"Best combination {best_combination_index} - val loss {best_val_loss} - hyperparams {best_hyperparameters}")
+model_name = "test_model"
+best_model.save(f"../models/{model_name}.h5")
